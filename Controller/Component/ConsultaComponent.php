@@ -20,9 +20,9 @@
 *   https://github.com/ftgoncalves/pagseguro/  de Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
 */
 
-require_once ROOT . '/vendor/autoload.php';
-require_once ROOT . '/vendor/pagseguro/php/source/PagSeguroLibrary/PagSeguroLibrary.php';
-require_once ROOT . '/app/Plugin/PagSeguro/Assets/Codes.php';
+require_once ROOT . DS . APP_DIR . DS . 'Vendor' . DS . 'autoload.php';
+require_once ROOT . DS . APP_DIR . DS . 'Vendor' . DS . 'pagseguro' . DS . 'php' . DS . 'source' . DS . 'PagSeguroLibrary' . DS . 'PagSeguroLibrary.php';
+require_once ROOT . DS . APP_DIR . DS . 'Plugin' . DS . 'PagSeguro' . DS . 'Assets' . DS . 'Codes.php';
 
 class ConsultaComponent extends Component{
     
@@ -107,22 +107,26 @@ class ConsultaComponent extends Component{
     
     private function __montarDetalhesTransacoes(PagSeguroTransactionSearchResult $result){
         $dadosTransacao = array();
-        foreach($result->getTransactions() as $transacoes) {
-            $dadosTransacao[] = array(
-                'idTransacao' => $transacoes->getCode(),
-                'referencia' => $transacoes->getReference(),
-                'valorTotal' => $transacoes->getGrossAmount(),
-                'tipoTransacao' => Codes::obterTipoTransacao($transacoes->getType()->getValue()),
-                'statusTransacao' => Codes::obterStatusTransacao($transacoes->getStatus()->getValue(),'notarray'),
-                'desconto' => $transacoes->getDiscountAmount(),
-                'valorExtra' => $transacoes->getExtraAmount(),
-                'tipoPagamento' => Codes::obterTipoPagamento($transacoes->getPaymentMethod()->getType()->getValue()),
-                'dataIso' => $transacoes->getDate(),
-                'dataPtBR' => date('d/m/Y H:i:s', strtotime($transacoes->getDate())),
-                'ultimaTentativaIso' => $transacoes->getLastEventDate(), 
-                'ultimaTentativaPtBR' => date('d/m/Y H:i:s', strtotime($transacoes->getLastEventDate())),
-                
-            );
+        
+        $transactions = $result->getTransactions();
+        if (!empty($transactions)) {
+            foreach($transactions as $transacoes) {
+                $dadosTransacao[] = array(
+                    'idTransacao' => $transacoes->getCode(),
+                    'referencia' => $transacoes->getReference(),
+                    'valorTotal' => $transacoes->getGrossAmount(),
+                    'tipoTransacao' => Codes::obterTipoTransacao($transacoes->getType()->getValue()),
+                    'statusTransacao' => Codes::obterStatusTransacao($transacoes->getStatus()->getValue(),'notarray'),
+                    'desconto' => $transacoes->getDiscountAmount(),
+                    'valorExtra' => $transacoes->getExtraAmount(),
+                    'tipoPagamento' => Codes::obterTipoPagamento($transacoes->getPaymentMethod()->getType()->getValue()),
+                    'dataIso' => $transacoes->getDate(),
+                    'dataPtBR' => date('d/m/Y H:i:s', strtotime($transacoes->getDate())),
+                    'ultimaTentativaIso' => $transacoes->getLastEventDate(), 
+                    'ultimaTentativaPtBR' => date('d/m/Y H:i:s', strtotime($transacoes->getLastEventDate())),
+                    
+                );
+            }
         }
         return $dadosTransacao;
     }
